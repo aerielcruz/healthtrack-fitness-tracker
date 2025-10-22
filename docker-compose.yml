@@ -1,0 +1,12 @@
+name: healthtrack-fitness-tracker
+
+services:
+  app:
+    image: healthtrack-fitness-tracker-image
+    container_name: healthtrack-fitness-tracker-container
+    ports:
+      - "8001:8000"
+    volumes:
+      - .:/app
+    env_file:
+      - .env
