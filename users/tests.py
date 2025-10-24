@@ -49,3 +49,43 @@ class UserAPITests(APITestCase):
         response = self.client.post(url, data)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
         self.assertNotIn("access", response.data)
+
+    def test_logout_user(self):
+        """Test user logout with a valid refresh token"""
+        # Step 1: Log in to get access and refresh tokens
+        login_url = reverse('token_obtain_pair')
+        login_data = {
+            "email": "testuser@example.com",
+            "password": "password123"
+        }
+        login_response = self.client.post(login_url, login_data)
+        self.assertEqual(login_response.status_code, status.HTTP_200_OK)
+
+        access_token = login_response.data["access"]
+        refresh_token = login_response.data["refresh"]
+
+        # Step 2: Add Authorization header (required by IsAuthenticated)
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {access_token}")
+
+        # Step 3: Logout with valid refresh token
+        logout_url = reverse('logout')
+        response = self.client.post(logout_url, {"refresh": refresh_token})
+        self.assertEqual(response.status_code, status.HTTP_205_RESET_CONTENT)
+
+    def test_logout_user_invalid_token(self):
+        """Test logout with invalid or missing refresh token"""
+        # Must be authenticated
+        login_url = reverse('token_obtain_pair')
+        login_data = {
+            "email": "testuser@example.com",
+            "password": "password123"
+        }
+        login_response = self.client.post(login_url, login_data)
+        access_token = login_response.data["access"]
+
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {access_token}")
+
+        # Invalid refresh token
+        logout_url = reverse('logout')
+        response = self.client.post(logout_url, {"refresh": "invalidtoken"})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
