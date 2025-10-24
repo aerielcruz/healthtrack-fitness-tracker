@@ -11,12 +11,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
+
     - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag healthtrack-fitness-tracker:$(date +%s)
-    - name: Install package
-      run: pip install -r requirements.txt
-    - name: Test the code
-      run: python manage.py test
+      run: docker build . --file Dockerfile --tag healthtrack-fitness-tracker:latest
+
+    - name: Run Django tests in Docker
+      run: docker run --rm healthtrack-fitness-tracker:latest python manage.py test
+
 
   build:
 
