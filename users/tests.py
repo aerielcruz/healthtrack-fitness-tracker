@@ -26,3 +26,26 @@ class UserAPITests(APITestCase):
         response = self.client.post(url, data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertTrue(User.objects.filter(email="newuser@example.com").exists())
+
+    def test_login_user(self):
+        """Test user login via JWT TokenObtainPairView"""
+        url = reverse('token_obtain_pair')
+        data = {
+            "email": "testuser@example.com",
+            "password": "password123"
+        }
+        response = self.client.post(url, data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn("access", response.data)
+        self.assertIn("refresh", response.data)
+
+    def test_login_user_invalid_credentials(self):
+        """Test login fails with wrong credentials"""
+        url = reverse('token_obtain_pair')
+        data = {
+            "email": "testuser@example.com",
+            "password": "wrongpassword"
+        }
+        response = self.client.post(url, data)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertNotIn("access", response.data)
