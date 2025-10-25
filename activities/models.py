@@ -1,5 +1,6 @@
 from django.db import models
 from django.conf import settings
+from datetime import date
 
 class Activity(models.Model):
     ACTIVITY_TYPES = [
@@ -20,7 +21,7 @@ class Activity(models.Model):
     calories = models.PositiveIntegerField(null=True, blank=True)          # for meals or workouts
     steps = models.PositiveIntegerField(null=True, blank=True)             # for steps
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='planned')
-    date = models.DateField(auto_now_add=True)
+    date = models.DateField(default=date.today)
 
     def __str__(self):
         return f"{self.user.email} - {self.activity_type} ({self.date})"
