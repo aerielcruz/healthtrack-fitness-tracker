@@ -7,6 +7,11 @@ class Activity(models.Model):
         ('meal', 'Meal'),
         ('steps', 'Steps'),
     ]
+    STATUS_CHOICES = [
+        ('planned', 'Planned'),
+        ('in_progress', 'In Progress'),
+        ('completed', 'Completed'),
+    ]
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='activities')
     activity_type = models.CharField(max_length=20, choices=ACTIVITY_TYPES)
@@ -14,6 +19,7 @@ class Activity(models.Model):
     duration_minutes = models.PositiveIntegerField(null=True, blank=True)  # for workouts
     calories = models.PositiveIntegerField(null=True, blank=True)          # for meals or workouts
     steps = models.PositiveIntegerField(null=True, blank=True)             # for steps
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='planned')
     date = models.DateField(auto_now_add=True)
 
     def __str__(self):

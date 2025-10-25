@@ -11,3 +11,11 @@ class ActivityListCreateView(generics.ListCreateAPIView):
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
+
+class ActivityUpdateView(generics.RetrieveUpdateAPIView):
+    serializer_class = ActivitySerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        # Limit updates to current user's activities only
+        return Activity.objects.filter(user=self.request.user)

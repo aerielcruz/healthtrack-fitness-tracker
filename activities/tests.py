@@ -16,15 +16,37 @@ class ActivityTests(APITestCase):
         refresh = RefreshToken.for_user(self.user)
         self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {refresh.access_token}')
 
+        # Create an activity for update tests
+        self.activity = Activity.objects.create(
+            user=self.user,
+            activity_type="workout",
+            description="Morning run",
+            duration_minutes=45,
+            calories=300
+        )
+
     def test_create_activity(self):
         url = reverse('activity-list-create')
         data = {
-            "activity_type": "workout",
-            "description": "Morning run",
-            "duration_minutes": 45,
-            "calories": 300
+            "activity_type": "meal",
+            "description": "Breakfast - Oatmeal and eggs",
+            "calories": 400
         }
         response = self.client.post(url, data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(Activity.objects.count(), 1)
-        self.assertEqual(Activity.objects.first().activity_type, "workout")
+        self.assertEqual(Activity.objects.count(), 2)  # one created in setUp + this one
+        self.assertEqual(Activity.objects.last().activity_type, "meal")
+
+    def test_update_activity_status(self):
+        """Test updating an existing activity's status"""
+        url = reverse('activity-update', kwargs={'pk': self.activity.id})
+        data = {
+            "status": "completed",
+            "description": "Morning run updated"
+        }
+        response = self.client.patch(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        self.activity.refresh_from_db()
+        self.assertEqual(self.activity.status, "completed")
+        self.assertEqual(self.activity.description, "Morning run updated")
