@@ -50,3 +50,12 @@ class ActivityTests(APITestCase):
         self.activity.refresh_from_db()
         self.assertEqual(self.activity.status, "completed")
         self.assertEqual(self.activity.description, "Morning run updated")
+
+    def test_delete_activity(self):
+        """Test deleting an existing activity"""
+        url = reverse('activity-delete', kwargs={'pk': self.activity.id})
+        response = self.client.delete(url)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+        # Ensure the activity was actually deleted
+        self.assertFalse(Activity.objects.filter(id=self.activity.id).exists())
