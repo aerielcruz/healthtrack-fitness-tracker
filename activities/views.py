@@ -2,6 +2,14 @@ from rest_framework import generics, permissions
 from .models import Activity
 from .serializers import ActivitySerializer
 
+class ActivityListView(generics.ListAPIView):
+    serializer_class = ActivitySerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        # Return all activities for the logged-in user
+        return Activity.objects.filter(user=self.request.user).order_by('-date')
+
 class ActivityListCreateView(generics.ListCreateAPIView):
     serializer_class = ActivitySerializer
     permission_classes = [permissions.IsAuthenticated]

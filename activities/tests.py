@@ -25,6 +25,16 @@ class ActivityTests(APITestCase):
             calories=300
         )
 
+    def test_list_activities(self):
+        """Test retrieving all activities for the authenticated user"""
+        url = reverse('activity-list')  # make sure this matches the URL name
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+
+        # Optional: check first activity fields
+        self.assertEqual(response.data[0]['activity_type'], "workout")
+
     def test_create_activity(self):
         url = reverse('activity-list-create')
         data = {
